@@ -1,3 +1,3 @@
 #pragma once
-static const float SCREEN_WIDTH = 1280;
-static const float SCREEN_HEIGHT = 720;
+static const float SCREEN_WIDTH = 1600;
+static const float SCREEN_HEIGHT = 900;
