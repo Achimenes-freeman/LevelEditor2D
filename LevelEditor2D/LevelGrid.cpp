@@ -8,19 +8,27 @@ LevelGrid::LevelGrid(const float screen_width, const float screen_height, const 
 {
 	InitSourse();
 
-	_rendered.width = 16;
-	_rendered.height = 16;
+	_rendered.width = 64;
+	_rendered.height = 64;
 
 	_cell_size = CalcMaxCellWidth(screen_width, screen_height);
 	_dest.width = _dest.height = _cell_size;
 	_grid.resize(columns_qty * rows_qty);
+	InitGrid();
 
 	_indent.x = screen_width - _columns_qty * _cell_size;
 	_indent.y = (screen_height - _rows_qty * _cell_size) / 2;
 }
 
 void LevelGrid::InitSourse() {
-	_tileset = LoadTexture("../assets/Tileset/AllTiles.png");
+	_tileset = LoadTexture((MainResourcePath + _ground_resource_path).c_str());
+}
+
+void LevelGrid::InitGrid() {
+	for (auto& cell : _grid) {
+		cell.x = -1;
+		cell.y = -1;
+	}
 }
 
 void LevelGrid::DrawGridLayout() {
@@ -42,6 +50,8 @@ void LevelGrid::DrawGridLayout() {
 
 void LevelGrid::Draw() {
 
+	DrawGridLayout();
+
 	for (int i = _grid.size() - 1; i >= 0; i--) {
 
 		_dest.x = _indent.x + (i % _columns_qty) * _cell_size;
@@ -50,26 +60,33 @@ void LevelGrid::Draw() {
 		_rendered.x = _grid[i].x;
 		_rendered.y = _grid[i].y;
 
-		DrawTexturePro(_tileset, _rendered, _dest, { 0,0 }, 0, WHITE);
+		if (_rendered.x >= 0 && _rendered.y >= 0) {
+			DrawTexturePro(_tileset, _rendered, _dest, { 0,0 }, 0, Color{ 255, 255, 255, 255 });
+		}
 	}
-
-	DrawGridLayout();
 }
 
-void LevelGrid::UpdateCell(Vector2& mouse_position) {
+int LevelGrid::FindeSelectedCell(Vector2& mouse_position) {
 	if (mouse_position.x < _indent.x ||
 		mouse_position.x >= _indent.x + _columns_qty * _cell_size ||
 		mouse_position.y < _indent.y ||
 		mouse_position.y >= _indent.y + _rows_qty * _cell_size) {
-		return;
+		return -1;
 	}
 
 	int row = (mouse_position.y - _indent.y) / _cell_size;
 	int column = (mouse_position.x - _indent.x) / _cell_size;
-	int cell_index = row * _columns_qty + column;
+	return row * _columns_qty + column;
+}
 
-	_grid[cell_index].x = 2 * 16;
-	_grid[cell_index].y = 2 * 16;
+void LevelGrid::UpdateCell(Vector2& mouse_position, const Vector2& chosen_cell) {
+	int cell_index = FindeSelectedCell(mouse_position);
+
+	if (cell_index >= 0) {
+		_grid[cell_index].x = chosen_cell.x * 64;
+		_grid[cell_index].y = chosen_cell.y * 64;
+	}
+
 }
 
 float LevelGrid::CalcMaxCellWidth(float screen_width, float screen_height) {
@@ -79,7 +96,17 @@ float LevelGrid::CalcMaxCellWidth(float screen_width, float screen_height) {
 
 void LevelGrid::ClearGrid() {
 	for (Vector2& cell : _grid) {
-		cell.x = 0;
-		cell.y = 0;
+		cell.x = -1;
+		cell.y = -1;
 	}
 }
+
+void  LevelGrid::HighlightCellUnderCursor(Vector2& mouse_position) {
+	int cell_index = FindeSelectedCell(mouse_position);
+	if (cell_index >= 0) {
+		Rectangle rect = { _indent.x + (cell_index % _columns_qty) * _cell_size, _indent.y + (cell_index / _columns_qty) * _cell_size, _cell_size, _cell_size };
+
+		DrawRectangleRec(rect, Color{ 255, 255, 255, 30 });
+	}
+}
+	

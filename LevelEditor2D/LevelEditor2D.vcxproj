@@ -22,11 +22,13 @@
     <ClCompile Include="LevelGrid.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Tileset.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Constants.h" />
     <ClInclude Include="LevelGrid.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Tileset.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
